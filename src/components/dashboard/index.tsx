@@ -43,14 +43,6 @@ const Dashboard: FC = () => {
       </Flex> */}
       <Header />
 
-      <InputGroup>
-        <InputLeftElement
-          pointerEvents="none"
-          children={<FaSearch color="gray.300" />}
-        />
-        <Input type="tel" placeholder="Transaction ID" />
-      </InputGroup>
-
       <TableData transactions={transactions} />
     </Fragment>
   );

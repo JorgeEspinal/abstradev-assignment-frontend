@@ -1,4 +1,5 @@
 import {
+  Box,
   Table,
   TableContainer,
   Tbody,
@@ -8,101 +9,95 @@ import {
   Tr,
   useTabPanel,
 } from "@chakra-ui/react";
-import { FC, useMemo } from "react";
+import {
+  ColumnDef,
+  ExpandedState,
+  getCoreRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import { IoIosArrowForward, IoIosArrowDown } from "react-icons/io";
+import { FC, useMemo, useState } from "react";
 import { TransactionType } from "../../models/transaction-type";
-
-import { useTable, useExpanded } from "react-table";
+// import { Table, TableContainer } from "@mui/material";
 
 type Props = {
   transactions: TransactionType[];
 };
 
+interface test {
+  idx: string;
+  name: string;
+}
+
 const TableData: FC<Props> = ({ transactions }) => {
-  const columns = useMemo(
-    () => [
-      {
-        // Build our expander column
-        id: "expander", // Make sure it has an ID
-        Header: () => <span>Go</span>,
-        Cell: () => (
-          // Use the row.canExpand and row.getToggleRowExpandedProps prop getter
-          // to build the toggle for expanding a row
-          <span>Down</span>
-        ),
-      },
-      {
-        Header: "Name",
-        columns: [
-          {
-            Header: "First Name",
-            accessor: "firstName",
-          },
-          {
-            Header: "Last Name",
-            accessor: "lastName",
-          },
-        ],
-      },
-      {
-        Header: "Info",
-        columns: [
-          {
-            Header: "Age",
-            accessor: "age",
-          },
-          {
-            Header: "Visits",
-            accessor: "visits",
-          },
-          {
-            Header: "Status",
-            accessor: "status",
-          },
-          {
-            Header: "Profile Progress",
-            accessor: "progress",
-          },
-        ],
-      },
-    ],
-    []
-  );
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-    state: expanded,
-  } = useTable(
+  // const columns = [
+  //   {
+  //     Header: "Column 1",
+  //     accessor: "transactionId", // accessor is the "key" in the data
+  //   },
+  //   {
+  //     Header: "Column 2",
+  //     accessor: "timestamp",
+  //   },
+  // ];
+
+  //const tabel = useTable({ columns, data: transactions });
+  const [transactionSelect, setTransactionSelect] = useState<string>("");
+  const [expanded, setExpanded] = useState<ExpandedState>({});
+  const data: test[] = [
     {
-      columns: columns,
-      data: transactions,
+      idx: "1212",
+      name: "DDD",
     },
-    useExpanded
-  );
+    {
+      idx: "333",
+      name: "XXX",
+    },
+  ];
+
+  const myColumns: ColumnDef<test>[] = [
+    { id: "actions", cell: (_props) => <div>Actions</div> },
+    {
+      accessorKey: "idx",
+      //cell: (info) => info.getValue(),
+      cell: (info) => info.getValue(),
+      footer: (props) => props.column.id,
+    },
+  ];
+
+  // const table = useReactTable({
+  //   data: data,
+  //   state: { expanded },
+  //   columns: myColumns,
+  // });
+
+  const handleExpand = (id: string) => {};
 
   const tableRows = transactions.map((transaction) => (
-    <Tr>
+    <Tr key={transaction.transactionId}>
+      <Td onClick={() => handleExpand(transaction.transactionId)}>
+        <IoIosArrowForward />
+      </Td>
       <Td>{transaction.transactionId}</Td>
-      <Td>millimetres (mm)</Td>
-      <Td isNumeric>25.4</Td>
+      <Td>{String(transaction.timestamp)}</Td>
     </Tr>
   ));
 
   return (
-    <TableContainer>
-      <Table>
-        <Thead>
-          <Tr>
-            <Th>Trasanction ID</Th>
-            <Th>Key</Th>
-            <Th>Value</Th>
-          </Tr>
-        </Thead>
-        <Tbody>{tableRows}</Tbody>
-      </Table>
-    </TableContainer>
+    <Box shadow="md" borderWidth="1px" marginLeft="1" marginRight="1">
+      <TableContainer>
+        <Table>
+          <Thead>
+            <Tr>
+              <Th></Th>
+              <Th>Trasanction ID</Th>
+              <Th>Timestamp</Th>
+            </Tr>
+          </Thead>
+          <Tbody>{tableRows}</Tbody>
+        </Table>
+      </TableContainer>
+    </Box>
   );
 };
 
