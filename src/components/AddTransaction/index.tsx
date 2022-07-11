@@ -6,6 +6,7 @@ import {
   Box,
   Button,
   FormControl,
+  FormErrorMessage,
   FormLabel,
   Modal,
   ModalBody,
@@ -36,6 +37,12 @@ const AddTransaction: FC = () => {
   } = useAppSelector((state) => state.transaction);
   const dataInputRef = useRef<HTMLTextAreaElement>(null);
   const metadataInputRef = useRef<HTMLTextAreaElement>(null);
+  const [isCreating, setIsCreating] = useState(false);
+  const [errorForm, setErrorForm] = useState<{
+    message: string;
+    input: "data" | "metadata" | unknown;
+    type: "form" | "server" | unknown;
+  }>({ message: "", input: undefined, type: undefined });
 
   const onClose = () => {
     dispatch(transactionActions.toggleModalAdd());
@@ -44,12 +51,33 @@ const AddTransaction: FC = () => {
   const onSubmit = (event: FormEvent) => {
     event.preventDefault();
 
+    setIsCreating(true);
+
     try {
       let dataEntered = dataInputRef.current?.value;
       let metadataEntered = metadataInputRef.current?.value;
 
-      if (!dataEntered || !metadataEntered)
-        dispatch(transactionActions.setError("Format invalid!"));
+      if (!dataEntered) {
+        setErrorForm((prev) => ({
+          ...prev,
+          message: "Invalid JSON format",
+          type: "form",
+          input: "data",
+        }));
+        setIsCreating(false);
+        return;
+      }
+
+      if (!metadataEntered) {
+        setErrorForm((prev) => ({
+          ...prev,
+          message: "Invalid JSON format",
+          type: "form",
+          input: "metadata",
+        }));
+        setIsCreating(false);
+        return;
+      }
 
       const data = {
         transactionData: JSON.parse(dataEntered ? dataEntered : ""),
@@ -62,13 +90,27 @@ const AddTransaction: FC = () => {
         enqueueSnackbar("Transaction add", {
           variant: "success",
         });
+        setIsCreating(false);
         dispatch(transactionActions.toggleModalAdd());
-      }
+      } else
+        setErrorForm((prev) => ({
+          ...prev,
+          type: "server",
+          message: "Unable to create transaction, API error",
+          input: undefined,
+        }));
     } catch (err: unknown) {
       let message = "";
       if (typeof err === "string") message = err;
       else if (err instanceof Error) message = err.message;
-      dispatch(transactionActions.setError(message));
+      setIsCreating(false);
+
+      setErrorForm((prev) => ({
+        ...prev,
+        message: message,
+        type: "form",
+        input: undefined,
+      }));
     }
   };
 
@@ -88,11 +130,21 @@ const AddTransaction: FC = () => {
               >
                 <Stack direction="row" spacing={5}>
                   <Radio value="set">Set JSON format</Radio>
-                  <Radio value="create">Create JSON format</Radio>
+                  <Radio value="create" disabled>
+                    Create JSON format
+                  </Radio>
                 </Stack>
               </RadioGroup>
             </FormControl>
-            <FormControl>
+            <FormControl
+              isInvalid={
+                errorForm.message &&
+                errorForm.type === "form" &&
+                errorForm.input === "data"
+                  ? true
+                  : false
+              }
+            >
               <FormLabel htmlFor="data">Data</FormLabel>
               <Textarea
                 ref={dataInputRef}
@@ -101,8 +153,19 @@ const AddTransaction: FC = () => {
                 size="sm"
                 resize="vertical"
               />
+              {errorForm.message && errorForm.input === "data" && (
+                <FormErrorMessage>{errorForm.message}</FormErrorMessage>
+              )}
             </FormControl>
-            <FormControl>
+            <FormControl
+              isInvalid={
+                errorForm.message &&
+                errorForm.type === "form" &&
+                errorForm.input === "metadata"
+                  ? true
+                  : false
+              }
+            >
               <FormLabel htmlFor="metadata">Metadata</FormLabel>
               <Textarea
                 ref={metadataInputRef}
@@ -111,17 +174,20 @@ const AddTransaction: FC = () => {
                 size="md"
                 resize="vertical"
               />
+              {errorForm.message && errorForm.input === "metadata" && (
+                <FormErrorMessage>{errorForm.message}</FormErrorMessage>
+              )}
             </FormControl>
             <Box marginTop="5" display="flex" justifyContent="flex-end">
               <Button
                 colorScheme="blue"
                 mr={3}
                 onClick={onClose}
-                disabled={loading}
+                disabled={isCreating}
               >
                 Close
               </Button>
-              <Button colorScheme="green" type="submit" disabled={loading}>
+              <Button colorScheme="green" type="submit" disabled={isCreating}>
                 Add
               </Button>
             </Box>
@@ -129,11 +195,11 @@ const AddTransaction: FC = () => {
         </ModalBody>
 
         <ModalFooter>
-          {error && (
+          {errorForm.message && !errorForm.input && (
             <Alert status="error">
               <AlertIcon />
-              <AlertTitle>Error!</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{errorForm.message}</AlertDescription>
             </Alert>
           )}
         </ModalFooter>

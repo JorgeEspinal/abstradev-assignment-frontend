@@ -7,10 +7,13 @@ import {
   Textarea,
 } from "@chakra-ui/react";
 import { FC, FormEvent, useRef, useState } from "react";
+import { getByFilterTransactionAction } from "../../features/transactionAsyncActions";
+import { useAppDispatch } from "../../store/configureStore";
 
 const Filter: FC = () => {
   const [searchError, setSearchError] = useState("");
   const metadataInputRef = useRef<HTMLTextAreaElement>(null);
+  const dispatch = useAppDispatch();
 
   const onSubmit = (event: FormEvent) => {
     event.preventDefault();
@@ -20,9 +23,9 @@ const Filter: FC = () => {
 
       if (!metadataEntered) setSearchError("JSON format incorrect.");
 
-      // const data = {
-      //   searchData: JSON.parse(metadataEntered ? metadataEntered : ""),
-      // };
+      const data = JSON.parse(metadataEntered ? metadataEntered : "");
+
+      dispatch(getByFilterTransactionAction(data));
     } catch (err: unknown) {
       let message = "";
       if (typeof err === "string") message = err;

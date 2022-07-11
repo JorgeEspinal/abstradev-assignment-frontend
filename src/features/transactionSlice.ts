@@ -54,10 +54,10 @@ export const transactionSlice = createSlice({
     });
     builder.addCase(
       getByIdTransactionAction.fulfilled,
-      (state, action: PayloadAction<TransactionType[]>) => {
+      (state, action: PayloadAction<TransactionType>) => {
         state.loading = false;
         state.error = "";
-        state.transactions = action.payload;
+        state.transactions = [action.payload];
       }
     );
     builder.addCase(getByIdTransactionAction.rejected, (state) => {

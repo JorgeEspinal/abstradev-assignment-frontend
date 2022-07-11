@@ -56,6 +56,7 @@ const Header: FC = () => {
         justifyContent="space-between"
         shadow="md"
         borderWidth="1px"
+        marginTop="2"
         gap="5"
       >
         <Box>
