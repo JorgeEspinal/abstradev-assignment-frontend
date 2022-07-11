@@ -20,9 +20,9 @@ const Filter: FC = () => {
 
       if (!metadataEntered) setSearchError("JSON format incorrect.");
 
-      const data = {
-        searchData: JSON.parse(metadataEntered ? metadataEntered : ""),
-      };
+      // const data = {
+      //   searchData: JSON.parse(metadataEntered ? metadataEntered : ""),
+      // };
     } catch (err: unknown) {
       let message = "";
       if (typeof err === "string") message = err;

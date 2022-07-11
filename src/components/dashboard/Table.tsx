@@ -121,8 +121,6 @@ const TableData: FC<Props> = ({ transactions }) => {
     </Thead>
   );
 
-  const skeleton = <Skeleton height="40px" />;
-
   const rows = table.getRowModel().rows.map((row) => (
     <Tr key={row.id}>
       {row.getVisibleCells().map((cell) => (
