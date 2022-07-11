@@ -1,26 +1,49 @@
 import {
   Box,
-  Button,
-  Flex,
   Heading,
   IconButton,
   Input,
   InputGroup,
   InputLeftElement,
-  InputRightElement,
 } from "@chakra-ui/react";
 import { ColorModeSwitcher } from "../../ColorModeSwitcher";
 import { FaSearch } from "react-icons/fa";
 import { GrFilter } from "react-icons/gr";
 import { MdLibraryAdd } from "react-icons/md";
-import { FC, useState } from "react";
+import { FC, KeyboardEvent, useRef, useState } from "react";
 import AdvanceSearch from "./AdvanceSearch";
+import { transactionActions } from "../../features/transactionSlice";
+import { useAppDispatch } from "../../store/configureStore";
+import {
+  getAllTransactionAction,
+  getByIdTransactionAction,
+} from "../../features/transactionAsyncActions";
 
 const Header: FC = () => {
   const [advanceSearch, setAdvanceSearch] = useState(false);
+  const idInputRef = useRef<HTMLInputElement>(null);
+  const dispatch = useAppDispatch();
 
   const showFilters = () => {
     setAdvanceSearch((prev) => !prev);
+  };
+
+  const onOpenModalAdd = () => {
+    dispatch(transactionActions.toggleModalAdd());
+  };
+
+  const handleSearchById = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter" || event.code === "Enter") {
+      let idEntered = idInputRef.current?.value;
+      idEntered = idEntered?.trim();
+
+      if (idEntered) dispatch(getByIdTransactionAction(idEntered));
+    }
+  };
+
+  const handleReset = () => {
+    if (idInputRef.current?.value.length === 0)
+      dispatch(getAllTransactionAction());
   };
 
   return (
@@ -46,7 +69,14 @@ const Header: FC = () => {
               pointerEvents="none"
               children={<FaSearch color="gray.300" />}
             />
-            <Input type="search" placeholder="Transaction ID" />
+            <Input
+              ref={idInputRef}
+              type="search"
+              aria-label="Search transaction by id"
+              placeholder="Transaction ID"
+              onKeyDown={handleSearchById}
+              onChange={handleReset}
+            />
           </InputGroup>
 
           <IconButton
@@ -56,14 +86,11 @@ const Header: FC = () => {
           />
         </Box>
         <Box>
-          {/* <Button
-            leftIcon={<MdLibraryAdd />}
-            colorScheme="teal"
-            variant="solid"
-          >
-            Transaction
-          </Button> */}
-          <IconButton aria-label="Add transaction" icon={<MdLibraryAdd />} />
+          <IconButton
+            aria-label="Add transaction"
+            icon={<MdLibraryAdd />}
+            onClick={onOpenModalAdd}
+          />
           <ColorModeSwitcher justifySelf="flex-end" />
         </Box>
       </Box>

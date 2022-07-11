@@ -2,6 +2,7 @@ import { TransactionType } from "../models/transaction-type";
 
 export type TransactionStateType = {
   transactions: TransactionType[];
+  isOpenModalAdd: boolean;
   loading: boolean;
   error: string | null;
 };

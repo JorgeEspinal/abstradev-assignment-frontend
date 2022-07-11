@@ -34,10 +34,10 @@ export const getByFilterTransactionAction = createAsyncThunk(
 export const createTransactionAction = createAsyncThunk(
   TransactionActionTypes.CREATE_TRANSACTION,
   async (transaction: TransactionType) => {
-    const response = await api.post<TransactionType>(
+    const response = await api.post(
       `${EndPoints.transactions}/create`,
       transaction
     );
-    return response.data;
+    return response.data.dataSave;
   }
 );

@@ -1,8 +1,6 @@
-import { JsonObjectExpressionStatement } from "typescript";
-
 export type TransactionType = {
-  transactionId: string;
+  transactionId?: string;
   transactionData: JSON;
   transactionMetadata: JSON;
-  timestamp: Date;
+  timestamp?: Date;
 };

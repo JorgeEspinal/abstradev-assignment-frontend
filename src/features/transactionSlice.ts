@@ -14,6 +14,7 @@ import {
 
 const initialState: TransactionStateType = {
   transactions: [],
+  isOpenModalAdd: false,
   loading: false,
   error: "",
 };
@@ -21,7 +22,14 @@ const initialState: TransactionStateType = {
 export const transactionSlice = createSlice({
   name: transactionNamespace,
   initialState,
-  reducers: {},
+  reducers: {
+    toggleModalAdd(state: TransactionStateType) {
+      state.isOpenModalAdd = !state.isOpenModalAdd;
+    },
+    setError(state: TransactionStateType, action: PayloadAction<string>) {
+      state.error = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(getAllTransactionAction.pending, (state) => {
       state.loading = true;
